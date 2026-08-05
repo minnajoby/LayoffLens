@@ -1,6 +1,6 @@
 # LayoffLens - Progress Notes
 
-## [02/08/2026]
+## [31/07/2026]
 - Set up project folder structure (data, notebooks, sql, powerbi)
 - Pushed initial commit to GitHub with raw layoffs.csv
 - Dataset: Layoffs.fyi mirror, 4,523 rows, 11 columns, real tech layoff events (2020-2026)
@@ -26,3 +26,37 @@
   - Added disclosed column (True/False flag for whether total_laid_off was reported)
   - Confirmed missing value counts: total_laid_off (1570), percentage_laid_off (1693),
     funds_raised (537) - expected real-world reporting gaps
+## [03/08/2026]
+- Data quality checks: 0 duplicate rows, industry/stage categories clean (no typos),
+  numeric ranges sane (total_laid_off 3-22000, percentage 0-1, funds_raised
+  0.7M-121,900M)
+- Python EDA - headline insight found:
+  - Layoff EVENT COUNT peaks in 2023 (1390), then declines (633 -> 333 -> 274)
+  - AVERAGE SIZE per event rises steadily 2022-2026: 201 -> 313 -> 394 -> 540 -> 696
+  - INSIGHT: tech layoffs are becoming less frequent but more severe - avg event
+    size more than tripled since 2022, even as event count dropped ~80% from peak
+  - Built dual-line chart (event count vs avg size, 2020-2026) confirming this
+    visually - lines cross around 2023-2024
+  - This is the confirmed headline finding / hero visual for Power BI Page 1
+
+- Industry breakdown reveals same frequency-vs-severity pattern as the year trend:
+  - Finance: most frequent layoffs (540 events) but smaller average size (196/event)
+  - Hardware: infrequent layoffs (85 events) but by far the LARGEST average size
+    (1,783/event) - rare but severe
+  - Retail: high on both dimensions (361 events, 448 avg) - consistently disruptive
+- This reinforces the headline theme: layoff SIZE and FREQUENCY are separate stories,
+  and looking at only one metric (like raw event count or raw totals) can be misleading
+
+  - Funding-stage breakdown: Post-IPO companies dominate BOTH frequency (1091 events -
+  most of any stage) and severity (avg 753/event - second highest) - challenges
+  assumption that mature, public companies are more layoff-stable than startups
+- Seed/Series A show much smaller avg layoff size (57-58) - expected, since early
+  companies are small to begin with
+- Series I/J, Private Equity, Subsidiary have very low event counts (9-36) -
+  averages unreliable, don't treat as strong findings
+
+  - Disclosure rate by industry (% of layoffs reporting actual headcount):
+  - Highest: Sales (80.5%), Recruiting (74.6%), Manufacturing (71.9%), AI (71.4%)
+  - Lowest: Construction (48%), Infrastructure (52.6%), Crypto (55.9%), Energy (57.1%)
+  - Moderate spread (48%-80%), not extreme, but Crypto's low transparency is notable
+    given its general reputation for opacity.
