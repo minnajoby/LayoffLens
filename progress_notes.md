@@ -12,6 +12,7 @@
   - stage: company funding stage (Seed to IPO/Acquired) — useful for funding-vs-layoff analysis
   - Fixed date/date_added format issue using pd.to_datetime() - 0 rows failed to parse
   - Confirmed missing value counts match expectations: total_laid_off (1563), percentage_laid_off (1690), funds_raised (533) missing due to real-world non-disclosure
+
 ## [02/08/2026]
 - Re-downloaded dataset: now 4,540 rows (was 4,523), latest date extended to July 31, 2026
   (confirmed dataset is actively updated by Layoffs.fyi)
@@ -26,6 +27,7 @@
   - Added disclosed column (True/False flag for whether total_laid_off was reported)
   - Confirmed missing value counts: total_laid_off (1570), percentage_laid_off (1693),
     funds_raised (537) - expected real-world reporting gaps
+
 ## [03/08/2026]
 - Data quality checks: 0 duplicate rows, industry/stage categories clean (no typos),
   numeric ranges sane (total_laid_off 3-22000, percentage 0-1, funds_raised
@@ -60,3 +62,36 @@
   - Lowest: Construction (48%), Infrastructure (52.6%), Crypto (55.9%), Energy (57.1%)
   - Moderate spread (48%-80%), not extreme, but Crypto's low transparency is notable
     given its general reputation for opacity.
+
+## [04/08/2026]
+  - Moved into SQL setup phase - decided to split data into two related tables
+  (companies + layoffs) instead of one flat table, to demonstrate JOINs, window
+  functions, and CTEs properly in SQL (not just basic aggregations)
+- Created 02_sql_setup.ipynb:
+  - Reloaded and re-cleaned data (date fix, year/quarter/disclosed columns)
+  - Split into companies table (deduped, one row per company: location, country,
+    industry, stage, funds_raised) and layoffs table (all 4540 rows: date,
+    total_laid_off, percentage_laid_off, source, date_added, year, quarter, disclosed)
+  - Loaded both into a SQLite database (sql/layoffs.db) using sqlite3 + to_sql()
+- Installed SQLite extension in VS Code to browse the database
+
+## [05/08/2026]
+   - Top 10 single largest layoff events: Intel (22,000 & 15,000), Oracle (21,000),
+    Amazon (16,000 & 14,000), Tesla (14,000), Google (12,000), Dell (11,000),
+    Meta (11,000 & 10,000) - confirms Hardware/Consumer as most severe industries
+  - Country breakdown: US dominates (657,447 total, 2,852 events), India second
+    (67,509, 348 events). Some countries (Pakistan, Philippines, Peru, South Africa,
+    Vietnam) show 0 total despite real events - all undisclosed, not zero layoffs
+  - Cleaned location column: removed ", Non-U.S." suffix that was splitting city
+    names into duplicate entries (e.g. "Bengaluru" vs "Bengaluru, Non-U.S.")
+  - India-specific breakdown: Bengaluru dominates cities (~36,735 combined);
+    Education leads industries (14,474) - notably different from global pattern
+    (Hardware/Retail dominate globally) - reflects India's edtech sector turbulence
+  - EDA complete - 7 total angles covered (time trend, industry, funding stage,
+    disclosure rate, top companies, country, India-specific)
+  - Discussed missing-value handling with faculty guide - decided to keep
+    total_laid_off/percentage_laid_off as real (not imputed) for core analysis,
+    since disclosure pattern is itself a finding. May add supplementary imputed
+    KPI at Power BI stage for a clean "total affected" headline number
+
+    
